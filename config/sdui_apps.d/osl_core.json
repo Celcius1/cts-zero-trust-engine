@@ -1,0 +1,138 @@
+{
+    "app_id": "osl_core",
+    "copyright": "Cel-Tech-Serv Pty Ltd",
+    "layout": {
+        "children": [
+            {
+                "children": [
+                    {
+                        "properties": {
+                            "form": {
+                                "properties": {
+                                    "fields": [
+                                        {
+                                            "name": "date",
+                                            "placeholder": "Select Transaction Date",
+                                            "type": "date"
+                                        },
+                                        {
+                                            "name": "description",
+                                            "placeholder": "Transaction Description",
+                                            "type": "text"
+                                        },
+                                        {
+                                            "name": "debit",
+                                            "placeholder": "Debit ($)",
+                                            "type": "text"
+                                        },
+                                        {
+                                            "name": "credit",
+                                            "placeholder": "Credit ($)",
+                                            "type": "text"
+                                        },
+                                        {
+                                            "name": "category",
+                                            "placeholder": "Category",
+                                            "type": "text"
+                                        }
+                                    ],
+                                    "submit_text": "Save Ledger Entry",
+                                    "target": "/api/osl/ledger/add"
+                                },
+                                "type": "ActionForm"
+                            },
+                            "text": "+ Record Manual Journal Entry"
+                        },
+                        "type": "ModalButton"
+                    },
+                    {
+                        "properties": {
+                            "action": "/api/osl/ledger/data",
+                            "behaviour": "api_call_silent",
+                            "columns": [
+                                "Date",
+                                "Description",
+                                "Category",
+                                "Entity",
+                                "Debit",
+                                "Credit",
+                                "Balance",
+                                "Audit Status"
+                            ],
+                            "id": "osl_main_ledger"
+                        },
+                        "type": "DataGrid"
+                    }
+                ],
+                "properties": {
+                    "title": "General Ledger"
+                },
+                "type": "TabPanel"
+            },
+            {
+                "children": [
+                    {
+                        "properties": {
+                            "fields": [
+                                {
+                                    "name": "entity_id",
+                                    "placeholder": "Database System ID (e.g. cel_tech)",
+                                    "type": "text"
+                                },
+                                {
+                                    "name": "business_name",
+                                    "placeholder": "Legal Name",
+                                    "type": "text"
+                                },
+                                {
+                                    "name": "acn_abn",
+                                    "placeholder": "ACN / ABN",
+                                    "type": "text"
+                                }
+                            ],
+                            "submit_text": "Provision Root Entity",
+                            "target": "/api/osl/entities/create"
+                        },
+                        "type": "ActionForm"
+                    },
+                    {
+                        "properties": {
+                            "fields": [
+                                {
+                                    "name": "parent_id",
+                                    "placeholder": "Parent Root ID (e.g. cel_tech)",
+                                    "type": "text"
+                                },
+                                {
+                                    "name": "entity_id",
+                                    "placeholder": "Database System ID (e.g. alfonsos)",
+                                    "type": "text"
+                                },
+                                {
+                                    "name": "business_name",
+                                    "placeholder": "Trading Name",
+                                    "type": "text"
+                                },
+                                {
+                                    "name": "acn_abn",
+                                    "placeholder": "ABN (Optional)",
+                                    "type": "text"
+                                }
+                            ],
+                            "submit_text": "Provision Trading Name",
+                            "target": "/api/osl/entities/create"
+                        },
+                        "type": "ActionForm"
+                    }
+                ],
+                "properties": {
+                    "title": "Tenancy Administration"
+                },
+                "type": "TabPanel"
+            }
+        ],
+        "type": "TabControl"
+    },
+    "title": "OSL: Sovereign Accounting Suite",
+    "vendor": "CTS Zero Trust Engine Software Master SDUI"
+}

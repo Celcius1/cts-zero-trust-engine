@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<body style="margin: 0; padding: 0; background-color: #f8fafc;">
+  <div style="font-family: Arial, sans-serif; color: #1e293b; max-width: 600px; margin: 20px auto; background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-top: 5px solid #d4af37;">
+    
+    <h2 style="color: #d4af37; margin-top: 0;">Welcome to the CTS Zero Trust Gateway</h2>
+    
+    <p style="font-size: 16px; line-height: 1.5;">Hello <b>{FULL_NAME}</b>,</p>
+    
+    <p style="font-size: 16px; line-height: 1.5;">An administrator has provisioned a new account for you on the Cel-Tech-Serv Zero Trust secure network.</p>
+    
+    <div style="background-color: #f1f5f9; padding: 20px; border-left: 4px solid #d4af37; margin: 25px 0; border-radius: 0 4px 4px 0;">
+      <p style="margin: 0; font-size: 16px;"><b>Your Username:</b></p>
+      <p style="margin: 10px 0 20px 0;"><code style="font-size: 20px; color: #0f172a; background: #e2e8f0; padding: 5px 10px; border-radius: 4px;">{USERNAME}</code></p>
+      
+      <p style="margin: 0; font-size: 16px;"><b>Your Temporary Password:</b></p>
+      <p style="margin: 10px 0 0 0;"><code style="font-size: 20px; color: #0f172a; background: #e2e8f0; padding: 5px 10px; border-radius: 4px;">{TEMP_PASSWORD}</code></p>
+    </div>
+    
+    <h3 style="color: #334155; margin-top: 30px;">How to Access the System:</h3>
+    <ol style="font-size: 15px; line-height: 1.6; color: #334155;">
+      <li><b>Download the Client:</b> <a href="https://cts.celtechserv.com/download/client" style="color: #3b82f6; text-decoration: none; font-weight: bold;">Click here to download the CTS Windows Installer</a>.</li>
+      <li><b>Save your Key:</b> Download the attached <code>{USERNAME}_secure_profile.conf</code> file to your computer.</li>
+      <li><b>Authenticate:</b> Install and open the CTS client. Import your <code>.conf</code> file into the application to establish the secure tunnel, then log in with your credentials.</li>
+      <li><b>Security Requirement:</b> You will be prompted to change this password immediately upon logging in.</li>
+    </ol>
+    
+    <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 30px 0;">
+    
+    <p style="font-size: 12px; color: #64748b; line-height: 1.5; margin: 0;">
+      This is an automated message from the CTS Core Engine.<br>
+      If you require assistance, please reply directly to this email (<a href="mailto:paul.fisher@osl.net.au" style="color: #64748b;">paul.fisher@osl.net.au</a>) or contact IT Support.
+    </p>
+    
+  </div>
+</body>
+</html>

@@ -1,0 +1,98 @@
+services:
+  cts-api:
+    build: ./cts_api
+    container_name: cts_api_core
+    restart: unless-stopped
+    ports:
+      # Claims the legacy VMS 8088 port for local Caddy proxying
+      - "127.0.0.1:${API_PORT}:8088"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      - TZ=Australia/Adelaide
+      - POSTGRES_HOST=cts-db
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - VPN_EXTERNAL_IP=${VPN_EXTERNAL_IP}
+      - VPN_SERVER_PUBKEY=${VPN_SERVER_PUBKEY}
+      - VPN_TRUSTED_SUBNET_PREFIX=${VPN_TRUSTED_SUBNET_PREFIX}
+      - VPN_JAIL_SUBNET_PREFIX=${VPN_JAIL_SUBNET_PREFIX}
+      - API_DOMAIN=${API_DOMAIN}
+      - CORS_ORIGIN=${CORS_ORIGIN}
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./config:/data/config
+      - ./vpn_config:/data/vpn_config
+    networks:
+      cts_master_network:
+        ipv4_address: 172.22.0.10
+    depends_on:
+      cts-db:
+        condition: service_healthy
+
+  cts-db:
+    image: postgres:16-alpine
+    container_name: cts_postgres_db
+    restart: unless-stopped
+    environment:
+      - TZ=Australia/Adelaide
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - cts_db_data:/var/lib/postgresql/data
+      - ./db_init/init_schema.sql:/docker-entrypoint-initdb.d/init_schema.sql:ro
+    ports:
+      # Claims the legacy VMS 5433 port
+      - "127.0.0.1:${DB_PORT}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - cts_master_network
+
+  cts-vpn:
+    image: lscr.io/linuxserver/wireguard:latest
+    container_name: cts_wireguard_gateway
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Australia/Adelaide
+      - SERVERURL=${VPN_EXTERNAL_IP}
+      # Claims the native WireGuard Port
+      - SERVERPORT=51820
+      - PEERS=1
+      - PEERDNS=auto
+      # Reclaims the master subnets
+      - INTERNAL_SUBNET=10.13.13.0
+      - ALLOWEDIPS=10.13.0.0/16, 172.16.0.0/12
+    ports:
+      - "51820:51820/udp"
+    volumes:
+      - ./vpn_config:/config
+      - /lib/modules:/lib/modules
+    networks:
+      - cts_master_network
+
+volumes:
+  cts_db_data:
+
+networks:
+  cts_master_network:
+    name: cts_master_network
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.22.0.0/16

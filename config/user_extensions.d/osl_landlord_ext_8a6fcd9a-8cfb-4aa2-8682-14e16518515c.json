@@ -1,0 +1,23 @@
+{
+    "attribution": "Powered by OSL Sovereign Suite - (c) Cel-Tech-Serv Pty Ltd",
+    "children": [
+        {
+            "children": {
+                "properties": {
+                    "columns": [
+                        "Assigned Entity (Trading Name / Root)",
+                        "Sovereign Role Status"
+                    ]
+                },
+                "type": "DataGrid"
+            },
+            "properties": {
+                "title": "OSL Sovereign Access"
+            },
+            "type": "TabPanel"
+        }
+    ],
+    "copyright": "Cel-Tech-Serv Pty Ltd",
+    "type": "TabControl",
+    "vendor": "CTS Zero Trust Engine Software Master SDUI"
+}

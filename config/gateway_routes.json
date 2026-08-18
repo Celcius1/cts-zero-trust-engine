@@ -1,0 +1,12 @@
+{
+    "routes": [
+        {
+            "prefix": "/api/osl",
+            "upstream_host": "172.22.0.11",
+            "upstream_port": 8080,
+            "managed_apps": [
+                "osl_core"
+            ]
+        }
+    ]
+}

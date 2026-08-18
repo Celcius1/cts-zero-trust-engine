@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CTS Secure Site | User Onboarding</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><polygon points=%225,100 40,15 75,100%22 fill=%22%233f5bca%22/></svg>">
+    <style>
+        :root {
+            --brand-blue: #3f5bca; 
+            --brand-green: #007b5f; 
+            --bg-page: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --text-error: #dc2626;
+            --border-color: #e2e8f0;
+        }
+        
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        
+        .card {
+            background: var(--bg-card);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            border-top: 5px solid var(--brand-green);
+        }
+
+        h2 { color: var(--brand-green); margin-top: 0; }
+        p { color: var(--text-muted); margin-bottom: 30px; font-size: 15px; line-height: 1.5; }
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--brand-green);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        button:hover { background-color: #046c54; }
+        button:disabled { background-color: #94a3b8; cursor: not-allowed; }
+        
+        .error { color: var(--text-error); font-weight: bold; margin-top: 15px; }
+        .success { color: var(--brand-green); font-weight: bold; margin-top: 15px; }
+        .download-link { color: var(--brand-blue); text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>Cel-Tech-Serv User Setup</h2>
+        <p>Please enter the 6-digit PIN from your onboarding email, along with your assigned username and a secure password.</p>
+        
+        <input type="text" id="pinInput" placeholder="6-Digit Setup PIN" maxlength="6">
+        <input type="text" id="usernameInput" placeholder="Assigned Username">
+        <input type="password" id="passwordInput" placeholder="Create Secure Password">
+        
+        <button id="claimBtn" onclick="submitUserClaim()">Generate Cryptographic Keys</button>
+        <div id="statusText"></div>
+    </div>
+
+    <script>
+        async function submitUserClaim() {
+            const pin = document.getElementById('pinInput').value.trim();
+            const user = document.getElementById('usernameInput').value.trim();
+            const pass = document.getElementById('passwordInput').value.trim();
+            const btn = document.getElementById('claimBtn');
+            const statusText = document.getElementById('statusText');
+
+            if (!pin || !user || !pass) {
+                statusText.className = 'error';
+                statusText.innerText = "Please fill out all fields.";
+                return;
+            }
+
+            btn.disabled = true;
+            statusText.className = '';
+            statusText.innerText = "Generating Zero-Trust Profile... Please wait.";
+
+            try {
+                const response = await fetch('/user-claim', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ pin: pin, username: user, pass: pass })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    const byteCharacters = atob(data.cai_payload);
+                    const byteNumbers = new Array(byteCharacters.length);
+                    for (let i = 0; i < byteCharacters.length; i++) {
+                        byteNumbers[i] = byteCharacters.charCodeAt(i);
+                    }
+                    const byteArray = new Uint8Array(byteNumbers);
+                    const blob = new Blob([byteArray], {type: 'application/octet-stream'});
+                    const url = window.URL.createObjectURL(blob);
+                    
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = 'cts_user_key.cai'; 
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+
+                    statusText.className = 'success';
+                    statusText.innerHTML = "Keys successfully generated.<br>Gateway Locked.<br><br><a href='/download/client' class='download-link'>Download CTS Windows Client</a>";
+                    
+                    document.getElementById('pinInput').style.display = 'none';
+                    document.getElementById('usernameInput').style.display = 'none';
+                    document.getElementById('passwordInput').style.display = 'none';
+                    btn.style.display = 'none';
+
+                    setTimeout(() => location.reload(), 3000);
+                } else {
+                    statusText.className = 'error';
+                    statusText.innerText = data.error || "Provisioning failed.";
+                    btn.disabled = false;
+                }
+            } catch (err) {
+                statusText.className = 'error';
+                statusText.innerText = "Network Error: Server dropped the connection.";
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>

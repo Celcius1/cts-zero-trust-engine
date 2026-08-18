@@ -1,0 +1,7 @@
+{
+    "id": "os_vms",
+    "name": "OSVMS Control",
+    "icon": "Security",
+    "action_type": "webview",
+    "target": "http://10.13.13.1:8088/vms"
+}

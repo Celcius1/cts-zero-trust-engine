@@ -1,0 +1,8 @@
+{
+    "id": "ossc_module",
+    "name": "OSSC (MeshCentral Core)",
+    "icon": "Desktop",
+    "action_type": "native_module",
+    "target": "ossc_launcher.exe",
+    "parameters": "--detect-monitors"
+}

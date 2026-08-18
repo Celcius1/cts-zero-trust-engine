@@ -1,0 +1,8 @@
+{
+    "action_type": "native_identity_panel",
+    "icon": "ShieldPerson",
+    "id": "admin_identity",
+    "name": "Identity & Access Management",
+    "requires_role": "Administrator",
+    "target": "http://172.22.0.10:8088/api/v1/users"
+}

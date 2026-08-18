@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CTS Secure Site | Factory Bootstrap</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><polygon points=%225,100 40,15 75,100%22 fill=%22%233f5bca%22/></svg>">
+    <style>
+        :root {
+            --brand-blue: #3f5bca; 
+            --brand-green: #007b5f; 
+            --bg-page: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --text-error: #dc2626;
+            --text-success: #059669;
+            --border-color: #e2e8f0;
+        }
+        
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .bootstrap-container {
+            background-color: var(--bg-card);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-color);
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+            border-top: 5px solid var(--brand-blue);
+        }
+
+        input[type="text"], input[type="password"] {
+            width: 85%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background-color: #f1f5f9;
+            color: var(--text-main);
+            font-size: 16px;
+            text-align: center;
+            outline: none;
+            transition: all 0.2s;
+            box-sizing: border-box;
+        }
+
+        input:focus {
+            border-color: var(--brand-blue);
+            background-color: #ffffff;
+            box-shadow: 0 0 0 2px rgba(63, 91, 202, 0.2);
+        }
+
+        button {
+            width: 85%;
+            padding: 14px;
+            margin-top: 15px;
+            border: none;
+            border-radius: 6px;
+            background-color: var(--brand-green);
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 2px 4px rgba(0, 123, 95, 0.2);
+        }
+
+        button:hover {
+            background-color: #00664f;
+        }
+
+        button:disabled {
+            background-color: #94a3b8;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        .status { margin-top: 20px; font-size: 14px; color: var(--text-muted); min-height: 20px; }
+        .error { margin-top: 20px; font-size: 14px; color: var(--text-error); font-weight: bold; }
+        .success { margin-top: 20px; font-size: 14px; color: var(--text-success); line-height: 1.5; font-weight: 500; }
+
+        .download-link {
+            display: inline-block;
+            margin-top: 15px;
+            color: var(--brand-blue);
+            text-decoration: none;
+            font-weight: bold;
+            border: 1px solid var(--brand-blue);
+            padding: 8px 16px;
+            border-radius: 4px;
+            transition: all 0.2s;
+            background-color: rgba(63, 91, 202, 0.05);
+        }
+        
+        .download-link:hover { background-color: rgba(63, 91, 202, 0.15); }
+    </style>
+</head>
+<body>
+    <div class="bootstrap-container">
+        <svg viewBox="0 0 100 100" width="60" height="60" style="margin-bottom: 15px; display: inline-block;">
+            <defs>
+                <mask id="gap-mask-login">
+                    <rect width="100" height="100" fill="white" />
+                    <polygon points="5,100 40,15 75,100" fill="black" stroke="black" stroke-width="3.5" stroke-linejoin="miter"/>
+                </mask>
+            </defs>
+            <polygon points="50,100 75,40 100,100" fill="var(--brand-green)" mask="url(#gap-mask-login)"/>
+            <polygon points="5,100 40,15 75,100" fill="var(--brand-blue)"/>
+        </svg>
+
+        <h1 style="margin-top: 0; font-size: 22px; letter-spacing: 1px;">Zero-Trust Handover</h1>
+        <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 25px; line-height: 1.4;">Enter the 4-digit terminal PIN and secure your master credentials.</p>
+        
+        <input type="text" id="pinInput" placeholder="6-DIGIT PIN (CAI_INIT)" maxlength="6" style="letter-spacing: 2px; font-weight: bold; text-align: center;">
+        <input type="text" id="usernameInput" placeholder="Admin Username">
+        <input type="password" id="passwordInput" placeholder="Master Password">
+        
+        <button id="authBtn" onclick="submitClaim()">Claim Server & Download Key</button>
+        <div id="statusText" class="status"></div>
+    </div>
+    
+    <script>
+        async function submitClaim() {
+            const pin = document.getElementById('pinInput').value;
+            const username = document.getElementById('usernameInput').value;
+            const pass = document.getElementById('passwordInput').value;
+            const statusText = document.getElementById('statusText');
+            const btn = document.getElementById('authBtn');
+            
+            if (!pin || !username || !pass) {
+                statusText.className = 'error';
+                statusText.innerText = "Please fill out all fields.";
+                return;
+            }
+            if (pin.length !== 6) {
+                statusText.className = 'error';
+                statusText.innerText = "PIN must be exactly 6 digits.";
+                return;
+            }
+            
+            btn.disabled = true;
+            statusText.className = 'status';
+            statusText.innerText = "Provisioning Master Server...";
+            
+            try {
+                // Hitting the C++ Core's active Handover Endpoint
+                const response = await fetch('/claim', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ pin: pin, username: username, pass: pass })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.status === 'success') {
+                    statusText.className = 'success';
+                    
+                    // Trigger native browser download of the Builder's Key
+                    const fileContent = data.cai_payload;
+                    const blob = new Blob([fileContent], { type: 'text/plain' });
+                    const url = window.URL.createObjectURL(blob);
+                    
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = 'cts_builders_key.cai'; 
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+
+                    statusText.innerHTML = "Server successfully claimed.<br>Booting Main API...<br><br><a href='/download/client' class='download-link'>Download CTS Windows Client</a>";
+                    document.getElementById('pinInput').style.display = 'none';
+                    document.getElementById('usernameInput').style.display = 'none';
+                    document.getElementById('passwordInput').style.display = 'none';
+                    btn.style.display = 'none';
+
+                    // Force a page reload after 3 seconds to exit OOBE mode visually
+                    setTimeout(() => location.reload(), 3000);
+                } else {
+                    statusText.className = 'error';
+                    statusText.innerText = data.error || "Provisioning failed.";
+                    btn.disabled = false;
+                }
+            } catch (err) {
+                statusText.className = 'error';
+                statusText.innerText = "Network Error: Server dropped the connection.";
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
